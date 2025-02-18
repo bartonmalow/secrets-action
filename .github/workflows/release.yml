@@ -52,7 +52,7 @@ jobs:
             prerelease: false
             allow_override: true
             gzip: folders
-            files: |
+            files: >
               dist/*
               action.yml
               LICENSE
