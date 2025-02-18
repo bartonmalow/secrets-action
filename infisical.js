@@ -1,5 +1,7 @@
 import axios from "axios";
-import core from "@actions/core";
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const core = require('@actions/core');
 import querystring from "querystring";
 
 export const UALogin = async ({ clientId, clientSecret, domain }) => {
