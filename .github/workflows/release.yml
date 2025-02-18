@@ -45,70 +45,30 @@ jobs:
           pwd
           ls -la
 
-      - name: Put commit hash/name in env variables
+      - name: Zip Release Files
         run: |
-          echo "GIT_HASH=$(git rev-parse --short=8 HEAD)" >> $GITHUB_ENV
-          echo "GIT_MESSAGE<<EOF" >> $GITHUB_ENV
-          git log -1 --pretty=%B >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+            echo "Zipping dist folder..."
+            zip -r dist.zip dist/
+            ls -la dist.zip
 
-      - name: Release the new binaries
-        uses: mini-bomba/create-github-release@v1.1.3
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            ACTIONS_RUNNER_DEBUG: true
         with:
-            token: ${{ secrets.GITHUB_TOKEN }}
-            tag: ${{ github.event.inputs.version || github.ref_name }}
-            prerelease: false
+            tag_name: ${{ github.event.inputs.version || github.ref_name }}
+            release_name: secrets-action
             draft: false
-            name: secrets-action
-            body: |
-              This automatic prerelease is built from commit ${{ env.GIT_HASH }} and was triggered by @${{ github.actor }}
-              [Github Actions workflow run that built this prerelease](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
-  
-              Commit message:
-              ${{ env.GIT_MESSAGE }}
-            files: |
-              dist/index.js
-              dist/package.json
-              action.yml
-              LICENSE
-              README.md
-            clear_attachments: true
-
-    #   - name: Upload Dist to Release
-    #     uses: actions/upload-release-asset@v1
-    #     env:
-    #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #     with:
-    #         upload_url: ${{ steps.create_release.outputs.upload_url }}
-    #         asset_path: dist/index.js
-    #         asset_name: index.js
-    #         asset_content_type: application/javascript
-
-#   - name: Create Release
-    #     id: create_release
-    #     uses: actions/create-release@v1
-    #     env:
-    #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #       ACTIONS_RUNNER_DEBUG: true
-    #     with:
-    #       tag_name: ${{ github.event.inputs.version || github.ref_name }}
-    #       release_name: ${{ github.event.inputs.version || github.ref_name }}
-    #       draft: false
-    #       prerelease: false
-          
-    #   - name: Zip Release Files
-    #     run: |
-    #       echo "Creating release zip..."
-    #       zip -r release.zip . -x "*.git*" "node_modules/*" "test/*" ".github/*"
-    #       echo "Zip contents:"
-    #       unzip -l release.zip
-
-    #   - name: Upload Release Asset
-    #     uses: actions/upload-release-asset@v1
-    #     env:
-    #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #     with:
-    #       upload_url: ${{ steps.create_release.outputs.upload_url }}
-    #       asset_path: ./release.zip
-    #       asset_name: release.zip
-    #       asset_content_type: application/zip
+            prerelease: false
+                
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+            upload_url: ${{ steps.create_release.outputs.upload_url }}
+            asset_path: ./dist.zip
+            asset_name: dist.zip
+            asset_content_type: application/zip
