@@ -21,7 +21,9 @@ jobs:
         run: npm ci
 
       - name: Build
-        run: npm run build
+        run: |
+          npm install -g @vercel/ncc
+          npm run build
 
       - name: Create Release
         id: create_release
