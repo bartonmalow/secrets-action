@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+            fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -38,6 +40,26 @@ jobs:
           npm run build
           echo "Build output:"
           ls -la dist/
+
+      - name: Prepare Release Files
+        run: |
+          mkdir release
+          cp dist/* release/
+          cp action.yml release/
+          cp LICENSE release/ || true
+          cp README.md release/ || true
+
+      - name: Create GitHub release
+        uses: iamkubi/github-release@2.0
+        with:
+            token: ${{ secrets.GITHUB_TOKEN }}
+            tag: ${{ github.event.inputs.version || github.ref_name }}
+            name: secrets-action
+            draft: false
+            prerelease: false
+            allow_override: true
+            files: |
+              release/*
 
     #   - name: Create Release
     #     id: create_release
@@ -67,14 +89,3 @@ jobs:
     #       asset_path: ./release.zip
     #       asset_name: release.zip
     #       asset_content_type: application/zip
-
-      - name: Create GitHub release
-        uses: iamkubi/github-release@2.0
-        with:
-            token: ${{ secrets.GITHUB_TOKEN }}
-            tag: ${{ github.event.inputs.version || github.ref_name }}
-            name: secrets-action
-            draft: false
-            prerelease: false
-            allow_override: true
-            #body: ${{ steps.release_notes.outputs.RELEASE_NOTES }}
