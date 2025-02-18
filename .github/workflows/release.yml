@@ -12,7 +12,7 @@ on:
         type: string
 
 jobs:
-  build:
+  build-action:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -67,7 +67,8 @@ jobs:
               Commit message:
               ${{ env.GIT_MESSAGE }}
             files: |
-              dist/*
+              dist/index.js
+              dist/package.json
               action.yml
               LICENSE
               README.md
