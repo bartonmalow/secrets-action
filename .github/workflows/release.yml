@@ -40,6 +40,9 @@ jobs:
           npm run build
           echo "Build output:"
           ls -la dist/
+          # current directory
+          echo "Current directory:"
+          pwd
 
       - name: Create GitHub release
         id: create_release
