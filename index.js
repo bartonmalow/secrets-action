@@ -22,6 +22,16 @@ try {
 
   switch (method) {
     case "universal": {
+      console.log("Using universal auth");
+      console.log("UAClientId", UAClientId);
+      console.log("UAClientSecret", UAClientSecret);
+      console.log("domain", domain);
+      console.log("envSlug", envSlug);
+      console.log("projectSlug", projectSlug);
+      console.log("secretPath", secretPath);
+      console.log("exportType", exportType);
+      console.log("fileOutputPath", fileOutputPath);
+      console.log("shouldIncludeImports", shouldIncludeImports);
       if (!(UAClientId && UAClientSecret)) {
         throw new Error("Missing universal auth credentials");
       }

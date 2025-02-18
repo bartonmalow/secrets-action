@@ -9,6 +9,9 @@ export const UALogin = async ({ clientId, clientSecret, domain }) => {
   });
 
   try {
+    console.log("UALogin", loginData);
+    console.log("domain", domain);
+    console.log("Trying to login");
     const response = await axios({
       method: "post",
       url: `${domain}/api/v1/auth/universal-auth/login`,
