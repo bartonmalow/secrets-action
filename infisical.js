@@ -1,8 +1,8 @@
-import axios from "axios";
+import axios from 'axios';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const core = require('@actions/core');
-import querystring from "querystring";
+import querystring from 'querystring';
 
 export const UALogin = async ({ clientId, clientSecret, domain }) => {
   const loginData = querystring.stringify({
@@ -11,20 +11,17 @@ export const UALogin = async ({ clientId, clientSecret, domain }) => {
   });
 
   try {
-    console.log("UALogin", loginData);
-    console.log("domain", domain);
-    console.log("Trying to login");
     const response = await axios({
-      method: "post",
+      method: 'post',
       url: `${domain}/api/v1/auth/universal-auth/login`,
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
       data: loginData,
     });
     return response.data.accessToken;
   } catch (err) {
-    core.error("Error:", err.message);
+    core.error('Error:', err.message);
     throw err;
   }
 };
@@ -39,17 +36,17 @@ export const oidcLogin = async ({ identityId, domain, oidcAudience }) => {
 
   try {
     const response = await axios({
-      method: "post",
+      method: 'post',
       url: `${domain}/api/v1/auth/oidc-auth/login`,
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
       data: loginData,
     });
 
     return response.data.accessToken;
   } catch (err) {
-    core.error("Error:", err.message);
+    core.error('Error:', err.message);
     throw err;
   }
 };
@@ -65,7 +62,7 @@ export const getRawSecrets = async ({
 }) => {
   try {
     const response = await axios({
-      method: "get",
+      method: 'get',
       url: `${domain}/api/v3/secrets/raw`,
       headers: {
         Authorization: `Bearer ${infisicalToken}`,
@@ -81,15 +78,12 @@ export const getRawSecrets = async ({
     });
 
     const keyValueSecrets = Object.fromEntries(
-      response.data.secrets.map((secret) => [
-        secret.secretKey,
-        secret.secretValue,
-      ])
+      response.data.secrets.map((secret) => [secret.secretKey, secret.secretValue])
     );
 
     // process imported secrets
 
-    if (response.data.imports) { 
+    if (response.data.imports) {
       const imports = response.data.imports;
       for (let i = imports.length - 1; i >= 0; i--) {
         const importedSecrets = imports[i].secrets;
@@ -103,7 +97,7 @@ export const getRawSecrets = async ({
 
     return keyValueSecrets;
   } catch (err) {
-    core.error("Error:", err.message);
+    core.error('Error:', err.message);
     throw err;
   }
 };

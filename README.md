@@ -33,8 +33,8 @@ Secrets are injected as environment variables and can be referenced by subsequen
   with:
     client-id: ${{ secrets.MACHINE_IDENTITY_CLIENT_ID }} # Update this to your own Github references
     client-secret: ${{ secrets.MACHINE_IDENTITY_CLIENT_SECRET }} # Update this to your own Github references
-    env-slug: "dev"
-    project-slug: "example-project-r-i3x"
+    env-slug: 'dev'
+    project-slug: 'example-project-r-i3x'
 ```
 
 ### As a file
@@ -46,10 +46,10 @@ Exports secrets to a file in your `GITHUB_WORKSPACE`, useful for applications th
   with:
     client-id: ${{ secrets.MACHINE_IDENTITY_CLIENT_ID }} # Update this to your own Github references
     client-secret: ${{ secrets.MACHINE_IDENTITY_CLIENT_SECRET }} # Update this to your own Github references
-    env-slug: "dev"
-    project-slug: "example-project-r-i3x"
-    export-type: "file"
-    file-output-path: "/src/.env" # defaults to "/.env"
+    env-slug: 'dev'
+    project-slug: 'example-project-r-i3x'
+    export-type: 'file'
+    file-output-path: '/src/.env' # defaults to "/.env"
 ```
 
 **Note**: Make sure to configure an `actions/checkout` step before using this action in file export mode
