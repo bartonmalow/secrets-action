@@ -51,17 +51,23 @@ jobs:
             draft: false
             prerelease: false
             allow_override: true
+            gzip: folders
+            files: |
+              dist/*
+              action.yml
+              LICENSE
+              README.md
 
-      - name: Upload Dist to Release
-        uses: actions/upload-release-asset@v1
-        env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-            upload_url: ${{ steps.create_release.outputs.upload_url }}
-            asset_path: dist/index.js
-            asset_name: index.js
-            asset_content_type: application/javascript
-            
+    #   - name: Upload Dist to Release
+    #     uses: actions/upload-release-asset@v1
+    #     env:
+    #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #     with:
+    #         upload_url: ${{ steps.create_release.outputs.upload_url }}
+    #         asset_path: dist/index.js
+    #         asset_name: index.js
+    #         asset_content_type: application/javascript
+
 #   - name: Create Release
     #     id: create_release
     #     uses: actions/create-release@v1
