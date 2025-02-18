@@ -58,8 +58,7 @@ jobs:
             draft: false
             prerelease: false
             allow_override: true
-            files: |
-              release/*
+
 
     #   - name: Create Release
     #     id: create_release
