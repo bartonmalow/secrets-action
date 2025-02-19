@@ -68,6 +68,10 @@ jobs:
 
       - name: Update Major Version Tag
         run: |
+          # Configure git
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
           # Get the version (either from input or from the tag)
           VERSION="${{ github.event.inputs.version || github.ref_name }}"
           # Remove 'v' prefix if present
