@@ -1,3 +1,10 @@
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+// Manually define __dirname for ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 import * as core from '@actions/core';
 import { UALogin, getRawSecrets, oidcLogin } from './infisical.js';
 import fs from 'fs/promises';
@@ -19,10 +26,7 @@ try {
   const shouldIncludeImports = core.getInput('include-imports').toLowerCase() === 'true';
   const shouldRecurse = core.getInput('recursive').toLowerCase() === 'true';
 
-  core.debug(`shouldIncludeImports: ${shouldIncludeImports}`);
-  core.debug(`shouldRecurse: ${shouldRecurse}`);
-  core.debug(`exportType: ${exportType}`);
-
+  core.debug(`Exporting secrets to ${__dirname}${fileOutputPath}`);
   // get infisical token using UA credentials
   let infisicalToken;
 
