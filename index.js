@@ -22,14 +22,7 @@ async function run() {
     const shouldRecurse = core.getInput('recursive').toLowerCase() === 'true';
 
     core.debug(`Exporting secrets to ${__dirname}${fileOutputPath}`);
-    // get infisical token using UA credentials
     let infisicalToken;
-
-    infisicalToken = await UALogin({
-      domain,
-      clientId: UAClientId,
-      clientSecret: UAClientSecret,
-    });
 
     switch (method) {
       case 'universal': {
