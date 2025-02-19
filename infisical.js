@@ -1,10 +1,8 @@
-import axios from 'axios';
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
+const axios = require('axios');
 const core = require('@actions/core');
-import querystring from 'querystring';
+const querystring = require('querystring');
 
-export const UALogin = async ({ clientId, clientSecret, domain }) => {
+const UALogin = async ({ clientId, clientSecret, domain }) => {
   const loginData = querystring.stringify({
     clientId,
     clientSecret,
@@ -26,7 +24,7 @@ export const UALogin = async ({ clientId, clientSecret, domain }) => {
   }
 };
 
-export const oidcLogin = async ({ identityId, domain, oidcAudience }) => {
+const oidcLogin = async ({ identityId, domain, oidcAudience }) => {
   const idToken = await core.getIDToken(oidcAudience);
 
   const loginData = querystring.stringify({
@@ -51,7 +49,7 @@ export const oidcLogin = async ({ identityId, domain, oidcAudience }) => {
   }
 };
 
-export const getRawSecrets = async ({
+const getRawSecrets = async ({
   domain,
   envSlug,
   infisicalToken,
@@ -100,4 +98,10 @@ export const getRawSecrets = async ({
     core.error('Error:', err.message);
     throw err;
   }
+};
+
+module.exports = {
+  UALogin,
+  getRawSecrets,
+  oidcLogin,
 };

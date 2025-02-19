@@ -1,110 +1,106 @@
-import { fileURLToPath } from 'url';
-import path from 'path';
-
-// Manually define __dirname for ESM
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
 const core = require('@actions/core');
-import { UALogin, getRawSecrets, oidcLogin } from './infisical.js';
-import fs from 'fs/promises';
+// const path = require('path');
+const { UALogin, getRawSecrets, oidcLogin } = require('./infisical.js');
+const fs = require('fs/promises');
 
-try {
-  const method = core.getInput('method');
-  core.debug(`method: ${method}`);
+async function run() {
+  try {
+    const method = core.getInput('method');
+    core.debug(`method: ${method}`);
 
-  const UAClientId = core.getInput('client-id');
-  const UAClientSecret = core.getInput('client-secret');
-  const identityId = core.getInput('identity-id');
-  const oidcAudience = core.getInput('oidc-audience');
-  const domain = core.getInput('domain');
-  const envSlug = core.getInput('env-slug');
-  const projectSlug = core.getInput('project-slug');
-  const secretPath = core.getInput('secret-path');
-  const exportType = core.getInput('export-type');
-  const fileOutputPath = core.getInput('file-output-path');
-  const shouldIncludeImports = core.getInput('include-imports').toLowerCase() === 'true';
-  const shouldRecurse = core.getInput('recursive').toLowerCase() === 'true';
+    const UAClientId = core.getInput('client-id');
+    const UAClientSecret = core.getInput('client-secret');
+    const identityId = core.getInput('identity-id');
+    const oidcAudience = core.getInput('oidc-audience');
+    const domain = core.getInput('domain');
+    const envSlug = core.getInput('env-slug');
+    const projectSlug = core.getInput('project-slug');
+    const secretPath = core.getInput('secret-path');
+    const exportType = core.getInput('export-type');
+    const fileOutputPath = core.getInput('file-output-path');
+    const shouldIncludeImports = core.getInput('include-imports').toLowerCase() === 'true';
+    const shouldRecurse = core.getInput('recursive').toLowerCase() === 'true';
 
-  core.debug(`Exporting secrets to ${__dirname}${fileOutputPath}`);
-  // get infisical token using UA credentials
-  let infisicalToken;
+    core.debug(`Exporting secrets to ${__dirname}${fileOutputPath}`);
+    // get infisical token using UA credentials
+    let infisicalToken;
 
-  infisicalToken = await UALogin({
-    domain,
-    clientId: UAClientId,
-    clientSecret: UAClientSecret,
-  });
-
-  switch (method) {
-    case 'universal': {
-      core.info('Using Universal Authentication');
-      if (!(UAClientId && UAClientSecret)) {
-        throw new Error('Missing universal auth credentials');
-      }
-      infisicalToken = await UALogin({
-        domain,
-        clientId: UAClientId,
-        clientSecret: UAClientSecret,
-      });
-      break;
-    }
-    case 'oidc': {
-      core.info('Using OIDC Authentication');
-      if (!identityId) {
-        throw new Error('Missing identity ID');
-      }
-      infisicalToken = await oidcLogin({
-        domain,
-        identityId,
-        oidcAudience,
-      });
-      break;
-    }
-    default:
-      core.info(`Received invalid authentication method: ${method}`);
-      throw new Error('Invalid authentication method');
-  }
-
-  // get secrets from Infisical using input params
-  const keyValueSecrets = await getRawSecrets({
-    domain,
-    envSlug,
-    infisicalToken,
-    projectSlug,
-    secretPath,
-    shouldIncludeImports,
-    shouldRecurse,
-  });
-
-  core.debug(`Exporting the following envs", ${JSON.stringify(Object.keys(keyValueSecrets))}`);
-
-  // export fetched secrets
-  if (exportType === 'env') {
-    // Write the secrets to action ENV
-    Object.entries(keyValueSecrets).forEach(([key, value]) => {
-      core.setSecret(value);
-      core.exportVariable(key, value);
+    infisicalToken = await UALogin({
+      domain,
+      clientId: UAClientId,
+      clientSecret: UAClientSecret,
     });
-    core.info('Injected secrets as environment variables');
-  } else if (exportType === 'file') {
-    // Write the secrets to a file at the specified path
-    const fileContent = Object.keys(keyValueSecrets)
-      .map((key) => `${key}='${keyValueSecrets[key]}'`)
-      .join('\n');
 
-    try {
-      const filePath = `${process.env.GITHUB_WORKSPACE}${fileOutputPath}`;
-      core.info(`Exporting secrets to ${filePath}`);
-      await fs.writeFile(filePath, fileContent);
-    } catch (err) {
-      core.error(`Error writing file: ${err.message}`);
-      throw err;
+    switch (method) {
+      case 'universal': {
+        core.info('Using Universal Authentication');
+        if (!(UAClientId && UAClientSecret)) {
+          throw new Error('Missing universal auth credentials');
+        }
+        infisicalToken = await UALogin({
+          domain,
+          clientId: UAClientId,
+          clientSecret: UAClientSecret,
+        });
+        break;
+      }
+      case 'oidc': {
+        core.info('Using OIDC Authentication');
+        if (!identityId) {
+          throw new Error('Missing identity ID');
+        }
+        infisicalToken = await oidcLogin({
+          domain,
+          identityId,
+          oidcAudience,
+        });
+        break;
+      }
+      default:
+        core.info(`Received invalid authentication method: ${method}`);
+        throw new Error('Invalid authentication method');
     }
-    core.info('Successfully exported secrets to file');
+
+    // get secrets from Infisical using input params
+    const keyValueSecrets = await getRawSecrets({
+      domain,
+      envSlug,
+      infisicalToken,
+      projectSlug,
+      secretPath,
+      shouldIncludeImports,
+      shouldRecurse,
+    });
+
+    core.debug(`Exporting the following envs", ${JSON.stringify(Object.keys(keyValueSecrets))}`);
+
+    // export fetched secrets
+    if (exportType === 'env') {
+      // Write the secrets to action ENV
+      Object.entries(keyValueSecrets).forEach(([key, value]) => {
+        core.setSecret(value);
+        core.exportVariable(key, value);
+      });
+      core.info('Injected secrets as environment variables');
+    } else if (exportType === 'file') {
+      // Write the secrets to a file at the specified path
+      const fileContent = Object.keys(keyValueSecrets)
+        .map((key) => `${key}='${keyValueSecrets[key]}'`)
+        .join('\n');
+
+      try {
+        const filePath = `${process.env.GITHUB_WORKSPACE}${fileOutputPath}`;
+        core.info(`Exporting secrets to ${filePath}`);
+        await fs.writeFile(filePath, fileContent);
+      } catch (err) {
+        core.error(`Error writing file: ${err.message}`);
+        throw err;
+      }
+      core.info('Successfully exported secrets to file');
+    }
+  } catch (error) {
+    core.setFailed(error.message);
   }
-} catch (error) {
-  core.setFailed(error.message);
 }
+
+run();
