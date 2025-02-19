@@ -65,4 +65,23 @@ jobs:
             release_name: secrets-action
             draft: false
             prerelease: false
+
+      - name: Update Major Version Tag
+        run: |
+          # Get the version (either from input or from the tag)
+          VERSION="${{ github.event.inputs.version || github.ref_name }}"
+          # Remove 'v' prefix if present
+          VERSION="${VERSION#v}"
+          # Extract major version
+          MAJOR_VERSION="v${VERSION%%.*}"
+          
+          echo "Updating major version tag: $MAJOR_VERSION"
+          
+          # Delete the major version tag if it exists (both locally and remotely)
+          git tag -d "$MAJOR_VERSION" || true
+          git push origin ":refs/tags/$MAJOR_VERSION" || true
+          
+          # Create new tag pointing to the current commit
+          git tag -a "$MAJOR_VERSION" -m "Update major version tag to ${VERSION}"
+          git push origin "$MAJOR_VERSION"
             
