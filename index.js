@@ -16,14 +16,15 @@ try {
   const secretPath = core.getInput('secret-path');
   const exportType = core.getInput('export-type');
   const fileOutputPath = core.getInput('file-output-path');
-  const shouldIncludeImports = core.getBooleanInput('include-imports');
-  const shouldRecurse = core.getBooleanInput('recursive');
+  const shouldIncludeImports = core.getInput('include-imports').toLowerCase() === 'true';
+  const shouldRecurse = core.getInput('recursive').toLowerCase() === 'true';
 
   // get infisical token using UA credentials
   let infisicalToken;
 
   switch (method) {
     case 'universal': {
+      core.info('Using Universal Authentication');
       if (!(UAClientId && UAClientSecret)) {
         throw new Error('Missing universal auth credentials');
       }
@@ -35,6 +36,7 @@ try {
       break;
     }
     case 'oidc': {
+      core.info('Using OIDC Authentication');
       if (!identityId) {
         throw new Error('Missing identity ID');
       }
@@ -46,6 +48,7 @@ try {
       break;
     }
     default:
+      core.info(`Received invalid authentication method: ${method}`);
       throw new Error('Invalid authentication method');
   }
 
