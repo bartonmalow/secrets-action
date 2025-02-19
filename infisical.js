@@ -59,11 +59,15 @@ const getRawSecrets = async ({
   shouldRecurse,
 }) => {
   try {
+    // Ensure domain has https:// prefix
+    const apiDomain = domain.startsWith('http') ? domain : `https://${domain}`;
+
     const response = await axios({
       method: 'get',
-      url: `${domain}/api/v3/secrets/raw`,
+      url: `${apiDomain}/api/v3/secrets/raw`,
       headers: {
         Authorization: `Bearer ${infisicalToken}`,
+        'Content-Type': 'application/json',
       },
       params: {
         secretPath,
