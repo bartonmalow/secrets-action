@@ -5,7 +5,9 @@ import path from 'path';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-import * as core from '@actions/core';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const core = require('@actions/core');
 import { UALogin, getRawSecrets, oidcLogin } from './infisical.js';
 import fs from 'fs/promises';
 
