@@ -59,16 +59,17 @@ const getRawSecrets = async ({
   shouldRecurse,
 }) => {
   try {
-    // Ensure domain has https:// prefix
+    if (!domain || !infisicalToken || !projectSlug) {
+      throw new Error('Missing required parameters: domain, infisicalToken, or projectSlug');
+    }
+
     const apiDomain = domain.startsWith('http') ? domain : `https://${domain}`;
+
+    core.debug(`Making request to ${apiDomain}/api/v3/secrets/raw`);
 
     const response = await axios({
       method: 'get',
       url: `${apiDomain}/api/v3/secrets/raw`,
-      headers: {
-        Authorization: `Bearer ${infisicalToken}`,
-        'Content-Type': 'application/json',
-      },
       params: {
         secretPath,
         environment: envSlug,
@@ -77,10 +78,17 @@ const getRawSecrets = async ({
         workspaceSlug: projectSlug,
         expandSecretReferences: true,
       },
+      timeout: 10000,
+      headers: {
+        Authorization: `Bearer ${infisicalToken}`,
+        'Content-Type': 'application/json',
+      },
     });
 
-    if (!response.data || !response.data.secrets) {
-      throw new Error('Invalid response format from Infisical API');
+    if (!response?.data?.secrets) {
+      throw new Error(
+        `Invalid response format from Infisical API: ${JSON.stringify(response.data)}`
+      );
     }
 
     const keyValueSecrets = {};
