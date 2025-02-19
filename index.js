@@ -1,11 +1,11 @@
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const core = require('@actions/core');
+import * as core from '@actions/core';
 import { UALogin, getRawSecrets, oidcLogin } from './infisical.js';
 import fs from 'fs/promises';
 
 try {
   const method = core.getInput('method');
+  core.debug(`method: ${method}`);
+
   const UAClientId = core.getInput('client-id');
   const UAClientSecret = core.getInput('client-secret');
   const identityId = core.getInput('identity-id');
@@ -19,8 +19,18 @@ try {
   const shouldIncludeImports = core.getInput('include-imports').toLowerCase() === 'true';
   const shouldRecurse = core.getInput('recursive').toLowerCase() === 'true';
 
+  core.debug(`shouldIncludeImports: ${shouldIncludeImports}`);
+  core.debug(`shouldRecurse: ${shouldRecurse}`);
+  core.debug(`exportType: ${exportType}`);
+
   // get infisical token using UA credentials
   let infisicalToken;
+
+  infisicalToken = await UALogin({
+    domain,
+    clientId: UAClientId,
+    clientSecret: UAClientSecret,
+  });
 
   switch (method) {
     case 'universal': {
