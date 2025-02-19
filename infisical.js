@@ -75,18 +75,29 @@ const getRawSecrets = async ({
       },
     });
 
-    const keyValueSecrets = Object.fromEntries(
-      response.data.secrets.map((secret) => [secret.secretKey, secret.secretValue])
-    );
+    if (!response.data || !response.data.secrets) {
+      throw new Error('Invalid response format from Infisical API');
+    }
 
-    // process imported secrets
+    const keyValueSecrets = {};
 
-    if (response.data.imports) {
-      const imports = response.data.imports;
-      for (let i = imports.length - 1; i >= 0; i--) {
-        const importedSecrets = imports[i].secrets;
+    // Process main secrets
+    response.data.secrets.forEach((secret) => {
+      if (secret.secretKey && secret.secretValue !== undefined) {
+        keyValueSecrets[secret.secretKey] = secret.secretValue;
+      }
+    });
+
+    // Process imported secrets if they exist
+    if (response.data.imports && Array.isArray(response.data.imports)) {
+      for (let i = response.data.imports.length - 1; i >= 0; i--) {
+        const importedSecrets = response.data.imports[i].secrets || [];
         importedSecrets.forEach((secret) => {
-          if (keyValueSecrets[secret.secretKey] === undefined) {
+          if (
+            secret.secretKey &&
+            secret.secretValue !== undefined &&
+            !Object.prototype.hasOwnProperty.call(keyValueSecrets, secret.secretKey)
+          ) {
             keyValueSecrets[secret.secretKey] = secret.secretValue;
           }
         });
@@ -95,7 +106,7 @@ const getRawSecrets = async ({
 
     return keyValueSecrets;
   } catch (err) {
-    core.error('Error:', err.message);
+    core.error('Error fetching secrets:', err.message);
     throw err;
   }
 };
