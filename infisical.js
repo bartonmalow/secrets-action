@@ -11,19 +11,31 @@ const UALogin = async ({ clientId, clientSecret, domain }) => {
   try {
     core.debug('Logging in to Infisical with Universal Authentication');
     core.debug(`Domain: ${domain}`);
-    core.debug(`Login Data: ${JSON.stringify(loginData)}`);
+    
+    // Ensure domain is properly formatted
+    const apiDomain = domain.startsWith('http') ? domain : `https://${domain}`;
+    const loginUrl = `${apiDomain}/api/v1/auth/universal-auth/login`;
+    
+    core.debug(`Making request to: ${loginUrl}`);
+    
     const response = await axios({
       method: 'post',
-      url: `${domain}/api/v1/auth/universal-auth/login`,
+      url: loginUrl,
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json'
       },
       data: loginData,
     });
+    
+    if (!response?.data?.accessToken) {
+      throw new Error('Invalid response format: missing access token');
+    }
+
     core.debug('Successfully logged in to Infisical with Universal Authentication');
     return response.data.accessToken;
   } catch (err) {
-    core.error('Error:', err.message);
+    core.debug(`Full error: ${err.response?.data ? JSON.stringify(err.response.data) : err.message}`);
     throw err;
   }
 };
