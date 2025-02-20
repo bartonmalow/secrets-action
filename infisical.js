@@ -2,29 +2,42 @@ const axios = require('axios');
 const core = require('@actions/core');
 const querystring = require('querystring');
 
-const UALogin = async ({ clientId, clientSecret, domain }) => {
-  const loginData = querystring.stringify({
+const UALogin = async ({ domain, clientId, clientSecret }) => {
+  const loginData = {
     clientId,
     clientSecret,
-  });
+  };
 
   try {
     core.debug('Logging in to Infisical with Universal Authentication');
     core.debug(`Domain: ${domain}`);
-    core.debug(`Login Data: ${loginData}`);
+    // Don't log sensitive data, but log the structure
+    core.debug('Login Data structure:', Object.keys(loginData));
+    
     const response = await axios({
       method: 'post',
       url: `${domain}/api/v1/auth/universal-auth/login`,
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json'
       },
-      data: loginData,
+      body: loginData,
+      // Add timeout and additional debugging
+      timeout: 10000,
+      validateStatus: (status) => {
+        core.debug(`Response status: ${status}`);
+        return status >= 200 && status < 300;
+      }
     });
-    core.debug('Successfully logged in to Infisical with Universal Authentication');
-    return response.data.accessToken;
-  } catch (err) {
-    core.error('Error:', err.message);
-    throw err;
+
+    if (!response?.data?.token) {
+      throw new Error('Invalid response format: missing token');
+    }
+
+    return response.data.token;
+  } catch (error) {
+    core.debug(`Error details: ${error.response?.data || error.message}`);
+    throw new Error(`Universal Auth login failed: ${error.message}`);
   }
 };
 
