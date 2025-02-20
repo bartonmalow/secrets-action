@@ -1,5 +1,5 @@
 const core = require('@actions/core');
-// const path = require('path');
+const path = require('path');
 const { UALogin, getRawSecrets, oidcLogin } = require('./infisical.js');
 const fs = require('fs/promises');
 
@@ -87,7 +87,7 @@ async function run() {
         .join('\n');
 
       try {
-        const filePath = `${process.env.GITHUB_WORKSPACE}${fileOutputPath}`;
+        const filePath = path.join(process.env.GITHUB_WORKSPACE, fileOutputPath.replace(/^\.\//, ''));
         core.info(`Exporting secrets to ${filePath}`);
         await fs.writeFile(filePath, fileContent);
       } catch (err) {
