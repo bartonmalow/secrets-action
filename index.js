@@ -21,7 +21,7 @@ async function run() {
     const shouldIncludeImports = core.getInput('include-imports').toLowerCase() === 'true';
     const shouldRecurse = core.getInput('recursive').toLowerCase() === 'true';
 
-    core.debug(`Exporting secrets to ${__dirname}${fileOutputPath}`);
+    core.debug(`Exporting secrets to ${process.env.GITHUB_WORKSPACE}${fileOutputPath}`);
     let infisicalToken;
 
     switch (method) {
@@ -35,6 +35,7 @@ async function run() {
           clientId: UAClientId,
           clientSecret: UAClientSecret,
         });
+        core.debug('Successfully logged in to Infisical with Universal Authentication');
         break;
       }
       case 'oidc': {
@@ -47,6 +48,7 @@ async function run() {
           identityId,
           oidcAudience,
         });
+        core.debug('Successfully logged in to Infisical with OIDC Authentication');
         break;
       }
       default:

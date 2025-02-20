@@ -43,7 +43,7 @@ const oidcLogin = async ({ identityId, domain, oidcAudience }) => {
       },
       data: loginData,
     });
-    core.debug('Successfully logged in to Infisical with OIDC Authentication'); 
+    core.debug('Successfully logged in to Infisical with OIDC Authentication');
     return response.data.accessToken;
   } catch (err) {
     core.error('Error:', err.message);
@@ -61,7 +61,7 @@ const getRawSecrets = async ({
   shouldRecurse,
 }) => {
   try {
-    core.debug('Fetching secrets from Infisical');  
+    core.debug('Fetching secrets from Infisical');
     if (!domain || !infisicalToken || !projectSlug) {
       throw new Error('Missing required parameters: domain, infisicalToken, or projectSlug');
     }
