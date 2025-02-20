@@ -10,11 +10,13 @@ const UALogin = async ({ clientId, clientSecret, domain }) => {
 
   try {
     core.debug('Logging in to Infisical with Universal Authentication');
+    core.debug(`Domain: ${domain}`);
+    core.debug(`Login Data: ${loginData}`);
     const response = await axios({
       method: 'post',
       url: `${domain}/api/v1/auth/universal-auth/login`,
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/json',
       },
       data: loginData,
     });
@@ -39,7 +41,7 @@ const oidcLogin = async ({ identityId, domain, oidcAudience }) => {
       method: 'post',
       url: `${domain}/api/v1/auth/oidc-auth/login`,
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/json',
       },
       data: loginData,
     });
