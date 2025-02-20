@@ -26,7 +26,7 @@ async function run() {
 
     switch (method) {
       case 'universal': {
-        core.info('Using Universal Authentication');
+        core.debug('Using Universal Authentication');
         if (!(UAClientId && UAClientSecret)) {
           throw new Error('Missing universal auth credentials');
         }
@@ -38,7 +38,7 @@ async function run() {
         break;
       }
       case 'oidc': {
-        core.info('Using OIDC Authentication');
+        core.debug('Using OIDC Authentication');
         if (!identityId) {
           throw new Error('Missing identity ID');
         }
@@ -50,10 +50,11 @@ async function run() {
         break;
       }
       default:
-        core.info(`Received invalid authentication method: ${method}`);
+        core.debug(`Received invalid authentication method: ${method}`);
         throw new Error('Invalid authentication method');
     }
 
+    core.debug('Fetching secrets from Infisical');
     // get secrets from Infisical using input params
     const keyValueSecrets = await getRawSecrets({
       domain,
@@ -64,10 +65,12 @@ async function run() {
       shouldIncludeImports,
       shouldRecurse,
     });
-
+    core.debug('Successfully fetched secrets from Infisical');
     core.debug(`Exporting the following envs", ${JSON.stringify(Object.keys(keyValueSecrets))}`);
 
     // export fetched secrets
+    core.debug('Exporting secrets');
+    core.debug(`Export type: ${exportType}`);
     if (exportType === 'env') {
       // Write the secrets to action ENV
       Object.entries(keyValueSecrets).forEach(([key, value]) => {

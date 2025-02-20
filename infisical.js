@@ -9,6 +9,7 @@ const UALogin = async ({ clientId, clientSecret, domain }) => {
   });
 
   try {
+    core.debug('Logging in to Infisical with Universal Authentication');
     const response = await axios({
       method: 'post',
       url: `${domain}/api/v1/auth/universal-auth/login`,
@@ -17,6 +18,7 @@ const UALogin = async ({ clientId, clientSecret, domain }) => {
       },
       data: loginData,
     });
+    core.debug('Successfully logged in to Infisical with Universal Authentication');
     return response.data.accessToken;
   } catch (err) {
     core.error('Error:', err.message);
@@ -26,7 +28,7 @@ const UALogin = async ({ clientId, clientSecret, domain }) => {
 
 const oidcLogin = async ({ identityId, domain, oidcAudience }) => {
   const idToken = await core.getIDToken(oidcAudience);
-
+  core.debug('Logging in to Infisical with OIDC Authentication');
   const loginData = querystring.stringify({
     identityId,
     jwt: idToken,
@@ -41,7 +43,7 @@ const oidcLogin = async ({ identityId, domain, oidcAudience }) => {
       },
       data: loginData,
     });
-
+    core.debug('Successfully logged in to Infisical with OIDC Authentication'); 
     return response.data.accessToken;
   } catch (err) {
     core.error('Error:', err.message);
@@ -59,6 +61,7 @@ const getRawSecrets = async ({
   shouldRecurse,
 }) => {
   try {
+    core.debug('Fetching secrets from Infisical');  
     if (!domain || !infisicalToken || !projectSlug) {
       throw new Error('Missing required parameters: domain, infisicalToken, or projectSlug');
     }
