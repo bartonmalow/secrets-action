@@ -85,7 +85,7 @@ jobs:
           git tag -d "$MAJOR_VERSION" || true
           git push origin ":refs/tags/$MAJOR_VERSION" || true
           
-          # Create new tag pointing to the current commit
-          git tag -a "$MAJOR_VERSION" -m "Update major version tag to ${VERSION}"
+          # Create new tag pointing to the current commit with [skip ci] message
+          git tag -a "$MAJOR_VERSION" -m "[skip ci] Update major version tag to ${VERSION}"
           git push origin "$MAJOR_VERSION"
             
