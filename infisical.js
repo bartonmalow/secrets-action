@@ -3,6 +3,9 @@ const core = require('@actions/core');
 const querystring = require('querystring');
 
 const UALogin = async ({ clientId, clientSecret, domain }) => {
+  core.debug('clientId: ', clientId);
+  core.debug('clientSecret: ', clientSecret);
+  core.debug('domain: ', domain);
   const loginData = {
     clientId,
     clientSecret,
